@@ -1,2 +1,2 @@
 # honkai-sprig-rail
-(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧
+licensed under CC BY 4.0 (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧

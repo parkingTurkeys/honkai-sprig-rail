@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<!--basically copy-pasted from the mdn-->
+	<body><canvas id = "canvasy" height = "128px" width = "180px"> Canvas not supported :( </canvas></body>
+	<script>
+	const canvas = document.getElementById("canvasy");
+	const ctx = canvas.getContext("2d");
+	const img = new Image(); // Create new img element
+	const bounding = canvas.getBoundingClientRect();
+	const palette = [
+	['0', [0, 0, 0, 255]],
+	['L', [73, 80, 87, 255]],
+	['1', [145, 151, 156, 255]],
+	['2', [248, 249, 250, 255]],
+
+	// Red
+	['3', [235, 44, 71, 255]],
+	['C', [139, 65, 46, 255]],
+
+	// Blue
+	['7', [25, 177, 248, 255]],
+	['5', [19, 21, 224, 255]],
+
+	// Yellow
+	['6', [254, 230, 16, 255]],
+	['F', [149, 140, 50, 255]],
+
+	// Green
+	['4', [45, 225, 62, 255]],
+	['D', [29, 148, 16, 255]],
+	
+	// Pink and purple
+	['8', [245, 109, 187, 255]],
+	['H', [170, 58, 197, 255]],
+
+	// Orange
+	['9', [245, 113, 23, 255]],
+
+	// Transparent
+	['.', [0, 0, 0, 0]]
+	]
+	function getKeyFromColor(array) {
+		for (y = 0; y < 16; y++) {
+			if (palette[y][1] == array) {
+				return palette[y][0]
+			}
+		}
+	}
+	
+	let arrayy = []
+	img.src = "cutscene-test.png"; // Set source path
+	img.addEventListener("load", () => {
+		ctx.drawImage(img, 0, 0);
+		for (x = 0; x < 128; x++) {
+		for (n = 0; n < 180; n++) {
+			console.log(x)
+			pixel = ctx.getImageData(n - bounding.left, x - bounding.top, 1, 1);
+			console.log((pixel.data))
+			
+		}
+	}
+	});
+	
+	
+	
+	</script>
+	<style>
+		#canvasy {
+			height: 128px;
+			width: 180px;
+		}
+	</style>
+</html>

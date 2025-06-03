@@ -1,0 +1,251 @@
+formulae:
+Damage = Base DMG[Attacker]*CRIT Multiplier[Attacker]*DMG Boost Multiplier[Attacker]*Weaken Multiplier[Attacker]*DEF Multiplier[Target]*RES Multiplier[Target]*Vulnerability Multiplier[Target]*DMG Mitigation Multiplier[Target]*Broken Multiplier[Target]
+CRIT Multiplier = 
+DMG Boost Multiplier = 1 + Elemental DMG Boost + All DMG Boost + DoT Boost
+Weaken Multiplier = 1 - Weaken
+Character DEF Multiplier = 1 - (DEF/DEF+200+10*Level[Attacker])
+Enemy DEF Multiplier = Level[Attacker] + 20 / (Level[Enemy] + 20) * (1 - %DEF Reduction - %DEF Ignore) + Level[Attacker] + 20
+RES Multiplier = 1 - (RES[Target] - RES PEN[Attacker])
+CRIT DMG = 1 + CRIT DMG if crit otherwise 1
+Vulnerability Multiplier = 1 + Elemental Vulnerability + All Type Vulnerability + DoT Vulnerability
+DMG Mitigation Multiplier = (1-Damage Mitigation 1) * (1 - Damage Mitigation 2) ...
+Broken Multiplier = 0.9 if toughness > 0 else 1
+SPD = Base SPD * (1 + SPD%) + Flat SPD
+New Action Value = Old Action Value * (old SPD/new SPD)
+Aggro = Base Aggro * (1 + Aggro Modifier)
+Targeting Probability = Aggro/Total Team Aggro
+
+
+
+hsr notes
+() -> scaled up
+[] -> diff enemies 
+
+Destruction/Stelle: 
+	Basic Attack:
+		single target, energy + 20, toughness - 10, dmg 50% (110%) ATK, sp + 1
+	Skill:
+		blast, energy + 30, toughness [10|20|10], dmg 62.5% (137.5%) ATK, sp - 1
+	Ultimate:
+		enhance, (enhance due to ease of programming so then it enhances the next turns skill and basic), energy - 120, energy cost 120
+		Enhanced:
+			Basic Attack:
+				single target, energy + 5, toughness - 10, dmg 300% (480%) ATK, sp 0
+			Skill:
+				blast, energy + 5, toughness - [10|20|10], dmg [108|180|108] ([172.8|280|172.8])% ATK, sp 0
+	Talent:
+		trigger = self.inflict weakness break, effect = buff{self, ATK * 10(22)%, maxstack:2}
+	Base Stats:
+		Lv 1:
+			HP = 163, ATK = 84, DEF = 62, SPD = 100
+		Lv 80:
+			HP = 1,203, ATK = 620, DEF = 460, SPD = 100
+	Relics:
+		
+	Eidolons:
+		1 = on self.ultimate.defeat enemy, energy + 10, 1/attack
+		2 = on self.attack.enemy.weakness includes destruction, hp + 5% ATK
+		3 = skill up, talent up
+		4 = on self.attack.enemy is weakness broken, attack.CRIT rate + 25%
+		5 = ult up, basic up
+		6 = on self.defeat enemy, trigger talent
+	
+	Traces:
+		//ugh
+	
+Preservation/March 7th:
+	Basic Attack:
+		single target, energy + 20, toughness - 10, dmg 50% (110%) ATK, sp + 1, dots fill ,"Frigid Cold Arrow"
+	Skill:
+		self-select, energy + 30, toughness 0, buff = {self select, shield + {3 turns, 38% (60.8%) DEF + 190 (845.5)}, dots fill, if buffed.hp.percent >= 30% then aggro up 500%}, sp - 1, "The Power of Cuteness"
+	Ultimate:
+		AoE, cost 120, energy - 115, toughness - 20, dmg 90(162)% of ATK, debuff = {50% chance, 1 turn, on turn = {action no, dmg 30 (66) % ATK}}, dmg distribution [0.25|0.25|0.25|0.25], "Glacial Cascade"
+	Talent:
+		trigger = shield attacked, if has > 0 dots counter = {attacker, dmg 50(110)% ATK, dots - 1}, energy + 10, toughness - 10
+	Base Stats:
+		Lv 1:
+			HP = 144, ATK = 69, DEF = 78, SPD = 101
+		Lv 80:
+			HP = 1058, ATK = 511, DEF = 573, SPD = 101
+	Relics:
+		
+	Eidolons:
+		1 = on freeze, energy + 6
+		2 = on battle start, ally where hp is lowest (or 1st slot) buff = {shield, 24% DEF + 320, 3 turns}
+		3 = ult up, basic up
+		4 = dots.max + 2, counter.dmg + 30% DEF
+		5 = skill up, talent up
+		6 = allies.shield where owner = m7 on turn HP + 4% HP + 106
+	
+	Traces:
+		//ugh :(
+	Light Cone:
+		
+
+Harmony/Asta:
+	Basic Attack:
+		single target, energy + 20, toughness - 10, dmg 50(110)% ATK, sp + 1, if turn > 1 then dots - 3, dots + 1, if target.weaknesses includes fire then dots + 1, "Spectrum Beam"
+	Skill:
+		bounce, energy + 30, toughness [10|5|5|5|5], dmg 25(55)% ATK, for diff enemies dots + 1, for diff enemies w/fire weak dots + 1, if turn > 1 then dots - 3, sp - 1, "Meteor Storm"
+	Ultimate:
+		team, cost 120, energy - 115, buff = {SPD + 36(52.8)%, 2 turns}, "Astral Blessing"
+	Talent:
+		trigger = N/A, for asta.dots; team.ATK + 7(15.4)%
+	Base Stats:
+		Lv 1:
+			HP = 139, ATK = 69, DEF = 63, SPD = 106
+		Lv 80:
+			HP = 1023, ATK = 511, DEF = 463, SPD = 106
+	Relics:
+		
+	Eidolons:
+		1 = skill replace -> targets + 1, energy + 6
+		2 = turn after ult -> dots + 3 // so dots 0
+		3 = skill up, talent up
+		4 = when asta.dots > 1, energy regen rate + 15%
+		5 = ult up, basic up
+		6 = dots lost/turn - 1
+	
+	Traces:
+		
+	Light Cone:
+		
+
+The Hunt/Dan Heng:
+	Basic Attack:
+		
+	Skill:
+		
+	Ultimate:
+		
+	Talent:
+		
+	Base Stats:
+		Lv 1:
+			
+		Lv 80:
+			
+	Relics:
+		
+	Eidolons:
+		1 = 
+		2 = 
+		3 = 
+		4 = 
+		5 = 
+		6 = 
+	
+	Traces:
+		
+	Light Cone:
+		
+
+Erudition/Herta:
+	Basic Attack:
+		
+	Skill:
+		
+	Ultimate:
+		
+	Talent:
+		
+	Base Stats:
+		Lv 1:
+			
+		Lv 80:
+			
+	Relics:
+		
+	Eidolons:
+		1 = 
+		2 = 
+		3 = 
+		4 = 
+		5 = 
+		6 = 
+	
+	Traces:
+		
+	Light Cone:
+		
+
+Path/Character:
+	Basic Attack:
+		
+	Skill:
+		
+	Ultimate:
+		
+	Talent:
+		
+	Base Stats:
+		Lv 1:
+			
+		Lv 80:
+			
+	Relics:
+		
+	Eidolons:
+		1 = 
+		2 = 
+		3 = 
+		4 = 
+		5 = 
+		6 = 
+	
+	Traces:
+		
+	Light Cone:
+		
+
+
+Important stats:
+	HP, DEF, ATK, SPD
+	CRIT rate, CRIT DMG, other stuff
+	dots
+
+
+Character:
+	Info: Name, id, pfp, type, path
+	Attacks:
+		Basic:  {target*, energy*, toughness, damage, sp*, dots eff, dots conditional (eval :D), name*}
+		Skill:  {target, energy, toughness, damage, sp, dots eff, dots conditional, buff, debuff, name}
+		Ult:    {target, cost, energy, toughness, damage, sp, dots eff, dots conditional, buff, debuff, name, enhance?}
+		Talent: {
+	Temp: HP, dots: {amt}, buffs
+	
+	
+	
+	
+	
+
+
+
+Note on SPD:
+
+At the beginning of the battle, each unit's Action Value, representing the amount of time until that unit's next turn, is set to their Base Action Value.
+At the beginning of the battle, effects that take effect upon entering battle, including SPD/AV modifying effects, are triggered on characters from left to right.
+The unit with the lowest Action Value, i.e. shortest time until their next turn, is selected to be the next active unit.
+All units subtract that lowest Action Value from their current Action Value, representing the progress of time until the next active unit's turn.
+The active unit starts their turn. All DoTs on the active unit deal damage.
+If the active unit is player-controlled and Auto mode is not enabled, the player has the opportunity to cast any pre-action Ultimate(s). Pre-action Ultimates cannot advance the action of the active unit (e.g. by the set effect of Eagle of Twilight Line), since at this point the active unit's Action Value is already zero.
+The active unit acts, resetting their Action Value to their Base Action Value. The player can queue any post-action Ultimates during the action animation.
+Any post-action Ultimates queued during the action animation execute. Post-action Ultimates can advance the next action of the active unit, since at this point its Action Value has been reset.
+The active unit's turn ends, ticking down any Status Effects on the active unit. Some Status Effects only tick down if they were present at the beginning of the active unit's turn.
+Repeat from #3.
+
+┗( T﹏T )┛          w(ﾟДﾟ)w
+
+Note on Shields:
+If multiple shields are applied to the same character, they will not stack, and the effective shield value of the character is equal to that of the shield with the highest value. When taking DMG, all applied shields will absorb the full amount of DMG simultaneously. A lower-value shield can break in the background while a higher-value shield remains. 
+
+Note on Aggro:
+Base Aggro:
+	The Hunt 	    3
+	Erudition 	    3
+	Harmony 	    4
+	Nihility 	    4
+	Abundance 	    4
+	Remembrance 	4
+	Destruction 	5
+	Preservation 	6 

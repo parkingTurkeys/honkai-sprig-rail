@@ -2,25 +2,34 @@
 
 Madam Herta is a peerless gem
 Madam Herta is an unrivalled genius
-Madam Herta is an inimitable beauty
+Madam Herta is an *inimitable* beauty
 
 @title: hsr-battle
 @author: me
 @tags: []
 @addedOn: 2025-00-00
+
+!Warning => unfinished and broken!!!!
+(it breaks after 4 turns, only has single target attack, and doesn't even use RES and RES PEN and healers overall and also baaaaaaasically any stat that isnt shown in the preview)
+
+move targets with J and L
+Skill is I, Basic Attack is K
+
+
 */
 //load enemies and characters
 let characters;
 let playerTurnOn = false; 
 const characterLoad = ["m7", "tb", "dh", "lr"]
 let dmgcalc;
+let msg = "press I for skill"
 
-// levels at randomy enhanced bc i dont feel like thinking about relics and lcs :) , traces up to char ascension 3, lvl 50/50, E6
+// levels at randomy (i took a secondary/ 4 star signature lc) enhanced bc i dont feel like thinking about ~~stigmata~~ relics and lcs :) , traces up to char ascension 3, lvl 50/50, E6
 characters = [
   {
     info:  {level: 50, name:"Stelle", id:"tb", type:"phys", path:"dest", pathName: "The Destruction", enemy: false},
     stats: {HP: 1311, ATK: 667, DEF: 482, SPD: 100, CRITrate: 0.50, CRITdmg: 0.80, baseAction: 100},
-    temp:  {HP: 1311, buffs: [], action: 100, energy: 0, debuffs: []},
+    temp:  {HP: 1311, buffs: [], action: 100, energy: 0, debuffs: [], aggro:5},
     attacks: {
       basic: {target:"single", energy: 20, toughness: 10, dmg: 0.7, sp: 1, name: "Farewell Hit"},
       skill: {target:"blast", energy: 30, toughness: [10, 20, 10], dmg: 0.8125, sp: -1, name: "RIP Home Run"},
@@ -28,40 +37,40 @@ characters = [
       enhancedBasic: {target:"single", energy: 5, toughness: 30, dmg: 3.45, name: "Blowout: Farewell Hit"},
       enhancedSkill: {target:"blast", energy: 5, toughness: [10,20,10], dmg: [1.242, 2.07, 1.242], name: "Blowout: RIP Home Run"},
       talent: {trigger:"self-break-weakness", buff: {type:"atk", effect:1.13, max: 2}}
-    }
+    }, x:0
       },
   {
     info:  {name:"March 7th", id:"m7", type:"ice", path:"pres", pathName: "The Preservation", enemy: false},
     stats: {HP: 1204, ATK: 537, DEF: 625, SPD: 101, CRITrate: 0.30, CRITdmg: 0.40, dotsMax: 2, baseAction: 99.0099009901},
-    temp:  {HP: 1204, buffs: [], action: 99.0099009901, dots: 2, energy: 0, debuffs: []},
+    temp:  {HP: 1204, buffs: [], action: 99.0099009901, dots: 2, energy: 0, debuffs: [], aggro:6},
     attacks: {
       basic: {target:"single", dots:1, energy:20, toughness:10, dmg: 0.8, sp: 1, name: "Frigid Cold Arrow"},
       skill: {target:"ally", dots:1, energy:30, buff: {type:"shield", effect:10, duration:3}, name:"The Power of Cuteness"},
       ult:   {target:"aoe", cost:120, energy:-115, toughness: 20, dmg: 1.08, debuff:{chance: 0.50, duration: 1, canAct:false, dot: "0.39 * characters[1].stats.ATK"}, name: "Glacial Cascade", dmgDistribution: [0.25,0.25,0.25,0.25]},
       talent:{trigger: "shield-attacked", type:"counter", dots: -1, target:"counter", dmg: 0.65, name: "Girl Power"}
-    }
+    }, x:3
       },
   {
     info:  {name:"Asta", id:"lr", type:"fire", path:"harm", pathName: "The Harmony", enemy: false},
     stats: {HP: 1259, ATK: 567, DEF: 483, SPD: 106, CRITrate: 0.30, CRITdmg: 0.40, dotsMax: 5, baseAction: 94.3396226415},
-    temp:  {HP: 1259, buffs: [], action: 94.3396226415, dots: 0, energy: 0, debuffs: []},
+    temp:  {HP: 1259, buffs: [], action: 94.3396226415, dots: 0, energy: 0, debuffs: [], aggro:4},
     attacks: {
       basic: {target:"single", dots:1, eval: "if (enemies.target.weaknesses.includes('fire')) {characters[2].temp.dots++}", energy:20, toughness:10, dmg: 0.7, sp: 1, name: "Spectrum Beam"},
       skill: {target:"bounce", dots: 5 - Math.round(Math.random()), energy:30, toughness: [10,5,5,5,5], name:"Meteor Storm", dmg:0.325},
       ult:   {target:"team", cost:120, energy:-115, name: "Astral Blessing", buff: {target:"team", duration: 2, type: "speed", effect:"0.402"}},
       talent:{trigger: "247", type:"dots", buff: {target:"team", duration:"action", type:"atk", effect: 0}}
-    }
+    }, x:6
       },
   {
     info:  {name:"Dan Heng", id:"dh", type:"wind", path:"hunt", pathName: "The Hunt", enemy: false},
     stats: {HP: 1108, ATK: 620, DEF: 442, SPD: 110, CRITrate: 0.55, CRITdmg: 0.8, baseAction: 90.9090909091},
-    temp:  {HP: 1108, buffs: [], action: 90.9090909091, energy: 0, debuffs: []},
+    temp:  {HP: 1108, buffs: [], action: 90.9090909091, energy: 0, debuffs: [], aggro:3},
     attacks: {
-      basic: {target:"single",  energy:20, toughness:10, dmg: 0.7, sp: 1, name: "Cloudlancer Art: North Wind", dmgDistribution: [0.45, 0.55]},
+      basic: {target:"single",energy:20, toughness:10, dmg: 0.7, sp: 1, name: "Cloudlancer Art: North Wind", dmgDistribution: [0.45, 0.55]},
       skill: {target:"single", sp: -1, energy:30, toughness: 20, name:"Cloudlancer Art: Torrent", dmg:1.69, debuff: {chance:0.55, type:"speed", effect: 0.12}},
       ult:   {target:"single", cost:100, energy:-95, name: "Ethereal Dream", dmg:2.88},
       talent:{/*haha no*/}
-    }
+    }, x:9
       }
 ]
 characters[1].attacks.skill.buff.effect = 0.45125 * characters[1].stats.DEF+475
@@ -71,12 +80,28 @@ let sp = 3;
 
 let enemies = [
   {
-    info: {name: "flamespawn", type: "fire", id: "fs", enemy: true},
+    info: {name: "flamespawn", type: "fire", id: "FS", enemy: true, index:0},
     stats: {HP:1235, ATK: 234, DEF: 700, SPD:83, toughness: 10},
     weaknesses: ["phys", "ice", "wind"],
     temp: {HP:1235, buffs: [], action: 120.481927711, toughness: 10},
     attacks: {default: {energy:10, target: "single", dmg: 2.5, name:"Distract"}},
-    attackOrder: ["default"]
+    attackOrder: ["default"], index:0
+  },
+  {
+    info: {name: "Incineration Shadewalker", type: "fire", id: "IS", enemy: true, index:1},
+    stats: {HP:4795, ATK: 276, DEF: 740, SPD: 100, toughness: 20},
+    weaknesses: ["ice", "wind", "imag"],
+    temp: {HP:4795, buffs:[], action: 100, toughness: 20},
+    attacks: {default: {energy:15, target: "single", dmg:3.0}},
+    attackOrder: ["default"], index:0
+  },
+  {
+    info: {name: "flamespawn", type: "fire", id: "FS", enemy: true}, index:2,
+    stats: {HP:1235, ATK: 234, DEF: 700, SPD:83, toughness: 10},
+    weaknesses: ["phys", "ice", "wind"],
+    temp: {HP:1235, buffs: [], action: 120.481927711, toughness: 10},
+    attacks: {default: {energy:10, target: "single", dmg: 2.5, name:"Distract"}},
+    attackOrder: ["default"], index:0
   }
 ]
 
@@ -95,6 +120,7 @@ const flamespawn = "F"
 const enemySelect = "@"
 const active = "/"  
 const incinerationShadewalker = "I"
+
 
 setLegend(
   [active, bitmap`
@@ -347,8 +373,8 @@ const levels = [
 ..........
 ..........
 .@........
-........O.
-.........0
+..........
+..........
 _.._.._.._
 _.._.._.._`
 ]
@@ -372,11 +398,14 @@ onInput("d", () => {
 })
 
 onInput("i", () => {
-  console.log(tilesWith("@")[0][tilesWith("@")[0].length - 1].type)
+  //console.log(tilesWith("@")[0][tilesWith("@")[0].length - 1].type)
   if (playerTurnOn) {
     switch (getFirst("@").x) {
       case 2:
         playerAttack(player, true, 0)
+        break;
+      case 4:
+        playerAttack(player, true, 1)
         break;
     }
   }
@@ -387,7 +416,17 @@ onInput("j", () => {
 })
 
 onInput("k", () => {
-  //atk
+  if (playerTurnOn) {
+    //console.log("basic attack")
+    switch (getFirst("@").x) {
+      case 2:
+        playerAttack(player, false, 0)
+        break;
+      case 4:
+        playerAttack(player, false, 1)
+        break;
+    }
+  }
 })
 
 onInput("l", () => {
@@ -410,16 +449,19 @@ function setup() {
   addSprite(9, 6, "-")
   //load enemies
   addSprite(2, 3, "F")
+  addSprite(4, 3, "I")
+  addSprite(6, 3, "F")
   //start first turn
   turn()
 }
 
 function loadText() {
+  clearText()
   addText(String(characters[1].temp.energy), options = {x:0, y:13, color:color`3`})
   addText(String(characters[0].temp.energy), options = {x:6, y:13, color:color`3`})
   addText(String(characters[3].temp.energy), options = {x:12,y:13, color:color`3`})
   addText(String(characters[2].temp.energy), options = {x:18,y:13, color:color`3`})
-
+  addText(msg, options = {x:1, y:1, color:color``})
 
 }
 function playerAttack(charNum, skillOn, target) {
@@ -427,11 +469,12 @@ function playerAttack(charNum, skillOn, target) {
   reuse = characters[charNum]
   //remove the damage
   if (skillOn) {
-    //add energy! and remove sp!
+    //add energy! and remove sp! and fun text!
     reuse.temp.energy += reuse.attacks.skill.energy
     sp += reuse.attacks.skill.sp
+    msg = reuse.attacks.skill.name
     if (sp < 0) {sp++; return "not enough points!"}
-    console.log(sp)
+    //console.log(sp)
     //do all damaging skills first!
     if (Object.keys(reuse.attacks.skill).includes("dmg")) {
       //check if you get a crit
@@ -440,7 +483,7 @@ function playerAttack(charNum, skillOn, target) {
       } else {
         dmgcalc = reuse.attacks.skill.dmg * reuse.stats.ATK
       }
-      console.log(dmgcalc)
+      //console.log(dmgcalc)
       if (reuse.temp.buffs.length > 0) {
         //buff logic
       }
@@ -452,18 +495,44 @@ function playerAttack(charNum, skillOn, target) {
       } /*figure out def reduction & etc.*/
       if (enemies[target].weaknesses.includes(reuse.info.type)) {
         enemies[target].temp.toughness -= reuse.attacks.skill.toughness
-        console.log(enemies[target].temp.toughness)
+        //console.log(enemies[target].temp.toughness)
       }
     }
+  } else {
+    //basic attack!
+    msg = reuse.attacks.basic.name
+    if (sp < 5) {sp += reuse.attacks.basic.sp}
+    reuse.temp.energy += reuse.attacks.basic.energy
+    if (Math.random() <= reuse.stats.CRITrate) {
+        dmgcalc = reuse.attacks.basic.dmg * reuse.stats.ATK * (1 + reuse.stats.CRITdmg)
+      } else {
+        dmgcalc = reuse.attacks.basic.dmg * reuse.stats.ATK
+    }
+    //console.log(dmgcalc)
+    if (reuse.temp.buffs.length > 0) {
+      //buff logic
+    }
+    if (reuse.temp.debuffs.length > 0) {
+      //debuff logic
+    }
+    if (enemies[target].temp.toughness > 0) {
+      dmgcalc = dmgcalc * 0.9
+    } /*figure out def reduction & etc.*/
+    if (enemies[target].weaknesses.includes(reuse.info.type)) {
+      enemies[target].temp.toughness -= reuse.attacks.skill.toughness
+      //console.log(enemies[target].temp.toughness)
+    }
   }
+  enemies[target].temp.HP -= dmgcalc
+  //console.log(enemies[target].temp.HP)
   spdforchars = reuse.temp.action
   for (y = 0; y < 4; y++) {
     characters[y].temp.action = characters[y].temp.action - spdforchars
-    console.log(characters[y].temp.action)
+    //console.log(characters[y].temp.action)
   }
   for (y = 0; y < enemies.length; y++) {
     enemies[y].temp.action = enemies[y].temp.action - spdforchars
-    console.log(enemies[y].temp.action)
+    //console.log(enemies[y].temp.action)
   }
   reuse.temp.action = reuse.stats.baseAction
   turn()
@@ -486,27 +555,70 @@ function getLowestActionValue() {
 }
 
 function turn() {
+  loadText()
+  //check if anybody is ded
+  for (o = 0; o < enemies.length; o++) {
+    console.log(enemies[o].temp.HP)
+    if (enemies[o].temp.HP <= 0) {
+      enemies.splice(o, 1)
+    }
+  }
+  //check if everyone is ded
+  if (enemies.length == 0) {
+    return
+  }
   //get whos turn it is
   reuse = getLowestActionValue()
   //if it is an enemy
+  if (reuse.info.enemy == true) {
   enemyTurn(reuse)
-  //if it is an ally
+  } else {
+  
   playerTurn(reuse)
+  }
 }
 
 function playerTurn(attacker) {
   playerTurnOn = true
   player = characters.indexOf(attacker)
+  addSprite(attacker.x, 7, active)
   console.log(attacker.info.name)
 }
 
 function enemyTurn(attacker) {
   playerTurnOn = false
+  //remove later
+  spdforchars = attacker.temp.action
+  for (y = 0; y < 4; y++) {
+    characters[y].temp.action = characters[y].temp.action - spdforchars
+    //console.log(characters[y].temp.action)
+  }
+  for (y = 0; y < enemies.length; y++) {
+    enemies[y].temp.action = enemies[y].temp.action - spdforchars
+    //console.log(enemies[y].temp.action)
+  }
+  attacker.temp.action = attacker.stats.baseAction
+  turn()
 }
 
 function enemyAttack(){
-  
+  reuse = Math.floor(Math.random()*18)
+  if (reuse < 5) {/*attack Stelle*/}
+  if (reuse > 4 && reuse < 11) {/*attack March*/}
+  if (reuse > 10 && reuse < 15) {/*attack Asta*/}
+  if (reuse > 13) {/*attack Dan Heng*/}
 }
+
+function getEnemyAtIndex(index) {
+  for (k = 0; k < enemies.length; k++) {
+    if (enemies[k].info.index == index) {
+      return enemies[k]
+    }
+  }
+  //win()
+}
+
 
 setup()
 loadText()
+

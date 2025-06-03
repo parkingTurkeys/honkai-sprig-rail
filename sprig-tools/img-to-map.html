@@ -7,6 +7,7 @@
 	const ctx = canvas.getContext("2d");
 	const img = new Image(); // Create new img element
 	const bounding = canvas.getBoundingClientRect();
+	let reuse = ""
 	const palette = [
 	['0', [0, 0, 0, 255]],
 	['L', [73, 80, 87, 255]],
@@ -51,13 +52,14 @@
 	img.src = "cutscene-test.png"; // Set source path
 	img.addEventListener("load", () => {
 		ctx.drawImage(img, 0, 0);
-		for (x = 0; x < 128; x++) {
+	for (x = 0; x < 128; x++) {
 		for (n = 0; n < 180; n++) {
 			console.log(x)
 			pixel = ctx.getImageData(n - bounding.left, x - bounding.top, 1, 1);
-			console.log((pixel.data))
-			
+			console.log(getKeyFromColor(pixel.data))
+			reuse += getKeyFromColor(pixel.data)
 		}
+		reuse += "\n"
 	}
 	});
 	
